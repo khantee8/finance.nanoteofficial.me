@@ -49,7 +49,8 @@ interface ShellProps {
 }
 
 export function Shell({ children, initialView }: ShellProps) {
-  const [view, setView] = useState<View>(initialView ?? "advisor");
+  // Admin users start in advisor view; the footer gear link switches them to admin console
+  const [view, setView] = useState<View>(initialView === "admin" ? "advisor" : (initialView ?? "advisor"));
   const [route, setRoute] = useState<RouteId>("Dashboard");
   const [ccy, setCcy] = useState<Currency>("THB");
   const [persona, setPersona] = useState<PersonaKey>("balanced");
