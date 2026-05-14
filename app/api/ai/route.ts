@@ -59,8 +59,12 @@ export async function POST(req: NextRequest) {
     });
 
     if (!res.ok) {
-      const errText = await res.text().catch(() => "(no body)");
-      console.error(`Anthropic API error ${res.status}:`, errText);
+      const errBody = await res.json().catch(() => ({})) as { error?: { message?: string } };
+      const msg = errBody?.error?.message ?? "";
+      console.error(`Anthropic API error ${res.status}:`, msg);
+      if (msg.toLowerCase().includes("credit balance")) {
+        return NextResponse.json({ reply: "AI assistant is temporarily unavailable — API credits exhausted. Please top up the Anthropic account." });
+      }
       return NextResponse.json({ reply: "AI model returned an error. Please try again." });
     }
 
