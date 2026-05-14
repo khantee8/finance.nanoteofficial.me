@@ -53,18 +53,22 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 300,
-        messages: [{ role: "user", content: `${systemPrompt}\n\nQuestion: ${message.trim()}` }],
+        system: systemPrompt,
+        messages: [{ role: "user", content: message.trim() }],
       }),
     });
 
     if (!res.ok) {
+      const errText = await res.text().catch(() => "(no body)");
+      console.error(`Anthropic API error ${res.status}:`, errText);
       return NextResponse.json({ reply: "AI model returned an error. Please try again." });
     }
 
     const data = await res.json() as { content?: { text?: string }[] };
     const reply = data.content?.[0]?.text ?? "No response from model.";
     return NextResponse.json({ reply });
-  } catch {
+  } catch (e) {
+    console.error("AI route fetch failed:", e);
     return NextResponse.json({ reply: "Unable to reach AI model. Please try again." });
   }
 }
