@@ -1,151 +1,150 @@
 "use client";
 import { useState } from "react";
+import { Icon } from "@/components/ui";
 
 type Role = "advisor" | "client" | "admin";
 
-export function ScreenLogin({ onLogin }: { onLogin: (role: Role) => void }) {
-  const [stage, setStage] = useState<"auth" | "role">("auth");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+const ROLE_COPY: Record<Role, { title: string; sub: string; icon: "briefcase" | "user" | "gear" }> = {
+  advisor: { title: "Advisor workspace", sub: "Full client book · recommendations · compliance", icon: "briefcase" },
+  client:  { title: "Investor portal",   sub: "My portfolio · my goals · snapshots",           icon: "user"     },
+  admin:   { title: "Admin console",     sub: "Firm settings · users · audit · licensing",      icon: "gear"     },
+};
 
-  const handleAuth = (_provider?: string) => {
-    setLoading(true);
-    setTimeout(() => { setLoading(false); setStage("role"); }, 800);
+export function ScreenLogin({ onLogin }: { onLogin: (role: Role) => void }) {
+  const [role, setRole] = useState<Role>("advisor");
+  const [email, setEmail] = useState("");
+  const [pwd, setPwd] = useState("");
+  const [remember, setRemember] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  const social = (_provider: string) => {
+    setBusy(true);
+    setTimeout(() => { setBusy(false); onLogin(role); }, 700);
   };
 
+  const submit = () => {
+    if (!email || !pwd) { setErr("Email and password are required."); return; }
+    setErr("");
+    setBusy(true);
+    setTimeout(() => { setBusy(false); onLogin(role); }, 500);
+  };
+
+  const rc = ROLE_COPY[role];
+
   return (
-    <div style={{
-      display: "grid",
-      gridTemplateColumns: "55fr 45fr",
-      height: "100vh",
-      fontFamily: "var(--sans)"
-    }}>
-      {/* LEFT PANEL */}
-      <div style={{
-        background: "linear-gradient(145deg, #0B0F1A 0%, #0D1535 40%, #1A1060 70%, #0B0F1A 100%)",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        padding: "48px 56px",
-        position: "relative",
-        overflow: "hidden",
-      }}>
-        {/* Animated geometric pattern - CSS-only */}
-        <div style={{ position: "absolute", inset: 0, backgroundImage: `radial-gradient(circle at 20% 50%, rgba(88,80,236,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(88,80,236,0.10) 0%, transparent 40%), radial-gradient(circle at 60% 80%, rgba(120,40,200,0.12) 0%, transparent 45%)`, pointerEvents: "none" }}/>
-        {/* Grid dots */}
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px)", backgroundSize: "32px 32px", pointerEvents: "none" }}/>
-
-        {/* Brand */}
-        <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 64 }}>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "white", display: "grid", placeItems: "center", fontWeight: 800, fontSize: 18, color: "#0D1535", letterSpacing: "-0.04em" }}>N</div>
-            <div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "white", letterSpacing: "-0.02em" }}>NaNote Finance</div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", letterSpacing: "0.12em", textTransform: "uppercase" }}>Wealth · Thailand</div>
-            </div>
-          </div>
-          <div style={{ color: "white" }}>
-            <div style={{ fontSize: 42, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.15, marginBottom: 20 }}>Professional<br/>Portfolio Analytics<br/><span style={{ color: "rgba(120,100,255,0.9)" }}>& Planning</span></div>
-            <div style={{ fontSize: 15, color: "rgba(255,255,255,0.55)", lineHeight: 1.7, maxWidth: 380 }}>The advisor-grade platform for Thai wealth managers — built for SEC-regulated advisory practices with full PDPA compliance.</div>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-          {[
-            { value: "127", label: "Active clients" },
-            { value: "฿18.4B", label: "AUM managed" },
-            { value: "99.4%", label: "Client satisfaction" },
-            { value: "SEC", label: "Regulated · PDPA" },
-          ].map(s => (
-            <div key={s.label} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 12, padding: "14px 16px" }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: "white", letterSpacing: "-0.02em", fontFamily: "var(--mono)" }}>{s.value}</div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
+    <div className="login-wrap">
+      <div className="login-bg">
+        <div className="login-bg-grid"/>
+        <div className="login-bg-glow"/>
       </div>
 
-      {/* RIGHT PANEL */}
-      <div style={{ background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", padding: "48px" }}>
-        <div style={{ width: "100%", maxWidth: 380 }}>
-
-          {stage === "auth" ? (
-            <div className="fadein">
-              <h1 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 8, color: "var(--ink)" }}>Welcome back</h1>
-              <p style={{ color: "var(--ink-3)", fontSize: 14, marginBottom: 32 }}>Sign in to your NaNote Finance workspace</p>
-
-              {/* Social auth buttons */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
-                {[
-                  { label: "Continue with Google", bg: "var(--surface)", border: "var(--border)", color: "var(--ink)", icon: "G" },
-                  { label: "Continue with Facebook", bg: "#1877F2", border: "#1877F2", color: "white", icon: "f" },
-                  { label: "Continue with Instagram", bg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)", border: "transparent", color: "white", icon: "Ⓘ" },
-                ].map(btn => (
-                  <button key={btn.label} onClick={() => handleAuth(btn.label)}
-                    style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 10, border: `1px solid ${btn.border}`, background: btn.bg, color: btn.color, fontFamily: "var(--sans)", fontSize: 14, fontWeight: 600, cursor: "pointer", width: "100%", transition: "opacity 0.15s", opacity: loading ? 0.6 : 1 }}>
-                    <span style={{ width: 20, height: 20, borderRadius: 4, display: "grid", placeItems: "center", fontSize: 12, fontWeight: 800, background: btn.color === "var(--ink)" ? "var(--surface-2)" : "rgba(255,255,255,0.2)" }}>{btn.icon}</span>
-                    {btn.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Divider */}
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
-                <div style={{ flex: 1, height: 1, background: "var(--border)" }}/>
-                <span style={{ fontSize: 12, color: "var(--ink-4)" }}>or</span>
-                <div style={{ flex: 1, height: 1, background: "var(--border)" }}/>
-              </div>
-
-              {/* Email form */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
-                <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="Email address"
-                  style={{ padding: "11px 14px", borderRadius: 10, border: "1px solid var(--border)", background: "var(--surface)", fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink)", outline: "none", width: "100%" }}
-                  onFocus={e => (e.target as HTMLInputElement).style.borderColor = "var(--accent)"}
-                  onBlur={e => (e.target as HTMLInputElement).style.borderColor = "var(--border)"}
-                />
-                <input value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="Password"
-                  style={{ padding: "11px 14px", borderRadius: 10, border: "1px solid var(--border)", background: "var(--surface)", fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink)", outline: "none", width: "100%" }}
-                  onFocus={e => (e.target as HTMLInputElement).style.borderColor = "var(--accent)"}
-                  onBlur={e => (e.target as HTMLInputElement).style.borderColor = "var(--border)"}
-                />
-                <button onClick={() => handleAuth("email")} disabled={loading}
-                  style={{ padding: "12px", borderRadius: 10, background: "var(--accent)", color: "white", border: "none", fontFamily: "var(--sans)", fontSize: 14, fontWeight: 700, cursor: "pointer", opacity: loading ? 0.7 : 1 }}>
-                  {loading ? "Signing in…" : "Sign in"}
-                </button>
-              </div>
-
-              <p style={{ fontSize: 11, color: "var(--ink-4)", textAlign: "center", lineHeight: 1.6 }}>
-                Thai SEC-regulated · PDPA compliant · Data stored in Thailand
-              </p>
+      <div className="login-shell">
+        {/* Left marquee */}
+        <div className="login-marquee">
+          <div className="brand brand-lg" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div className="brand-mark" style={{ width: 38, height: 38, fontSize: 18 }}>N</div>
+            <div>
+              <div className="brand-name" style={{ fontSize: 19 }}>NaNote Finance</div>
+              <div className="brand-sub">Wealth Platform · Thailand</div>
             </div>
-          ) : (
-            <div className="fadein">
-              <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 8, color: "var(--ink)" }}>Select your role</h2>
-              <p style={{ color: "var(--ink-3)", fontSize: 14, marginBottom: 28 }}>Choose how you want to access NaNote Finance</p>
+          </div>
+          <h1 className="login-title">
+            Plan portfolios.<br/>
+            Earn trust.<br/>
+            <span style={{ color: "var(--accent)" }}>Stay compliant.</span>
+          </h1>
+          <p className="login-lede">A unified workspace for financial advisors, investors and compliance officers. Real-time analytics, Monte Carlo planning, and shareable client snapshots — built for the Thai market.</p>
+          <ul className="login-feat">
+            <li><Icon name="shield" size={14}/> PDPA-aligned · SEC Thailand</li>
+            <li><Icon name="chart" size={14}/> Live portfolio &amp; risk analytics</li>
+            <li><Icon name="sparkles" size={14}/> AI insights for every client meeting</li>
+          </ul>
+          <div className="login-foot-note">© 2026 NaNote Co., Ltd · Licensed wealth-tech provider</div>
+        </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {[
-                  { role: "advisor" as Role, icon: "💼", title: "Financial Advisor", desc: "Manage client portfolios, run analyses, view compliance logs and recommendations.", accent: "#5858EC", soft: "#EDEDFD" },
-                  { role: "client" as Role, icon: "📊", title: "Investor / Client", desc: "View your portfolio, track goals, run projections, and share progress snapshots.", accent: "#059669", soft: "#D1FAE5" },
-                  { role: "admin" as Role, icon: "⚙️", title: "Administrator", desc: "Manage platform users, review audit logs, configure system settings and roles.", accent: "#B45309", soft: "#FEF3C7" },
-                ].map(r => (
-                  <button key={r.role} onClick={() => onLogin(r.role)}
-                    style={{ display: "flex", alignItems: "flex-start", gap: 14, padding: "16px 18px", borderRadius: 12, border: "1px solid var(--border)", background: "var(--surface)", cursor: "pointer", textAlign: "left", fontFamily: "var(--sans)", transition: "border-color 0.15s, box-shadow 0.15s", width: "100%" }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = r.accent; (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 0 0 3px ${r.soft}`; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "none"; }}
-                  >
-                    <div style={{ width: 40, height: 40, borderRadius: 10, background: r.soft, display: "grid", placeItems: "center", fontSize: 20, flexShrink: 0 }}>{r.icon}</div>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>{r.title}</div>
-                      <div style={{ fontSize: 12, color: "var(--ink-3)", lineHeight: 1.55 }}>{r.desc}</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
+        {/* Right card */}
+        <div className="login-card fadein">
+          {/* Role tabs */}
+          <div className="login-role-tabs">
+            {(["advisor", "client", "admin"] as Role[]).map(r => (
+              <button key={r} className={role === r ? "on" : ""} onClick={() => setRole(r)}>
+                <Icon name={ROLE_COPY[r].icon} size={14}/>
+                <span>{r === "advisor" ? "Advisor" : r === "client" ? "Client" : "Admin"}</span>
+              </button>
+            ))}
+          </div>
+          <div className="login-role-blurb">
+            <div style={{ fontSize: 13, fontWeight: 700 }}>{rc.title}</div>
+            <div style={{ fontSize: 12, color: "var(--ink-3)" }}>{rc.sub}</div>
+          </div>
+
+          {/* Social auth */}
+          <div className="login-socials">
+            <button className="soc google" onClick={() => social("google")} disabled={busy}>
+              <svg width="16" height="16" viewBox="0 0 48 48">
+                <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8a12 12 0 1 1 0-24c3 0 5.8 1.1 7.9 3l5.7-5.7C33.9 6 29.2 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.3-.4-3.5z"/>
+                <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 18.9 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C33.9 6.6 29.2 4.5 24 4.5 16.4 4.5 9.8 8.8 6.3 14.7z"/>
+                <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.3l-6.2-5.2C29.2 35 26.7 36 24 36c-5.1 0-9.6-3.3-11.2-8l-6.6 5.1C9.7 39.6 16.3 44 24 44z"/>
+                <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.5l6.2 5.2C40.1 36.4 44 30.7 44 24c0-1.3-.1-2.3-.4-3.5z"/>
+              </svg>
+              Continue with Google
+            </button>
+            <div className="soc-row">
+              <button className="soc fb" onClick={() => social("facebook")} disabled={busy} title="Facebook">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2">
+                  <path d="M22 12a10 10 0 1 0-11.6 9.9v-7H8v-2.9h2.4V9.8c0-2.4 1.4-3.7 3.6-3.7 1 0 2.1.2 2.1.2v2.3h-1.2c-1.2 0-1.5.7-1.5 1.5v1.8h2.6l-.4 2.9h-2.2v7A10 10 0 0 0 22 12z"/>
+                </svg>
+                Facebook
+              </button>
+              <button className="soc ig" onClick={() => social("instagram")} disabled={busy} title="Instagram">
+                <svg width="16" height="16" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="iggrad" x1="0" y1="1" x2="1" y2="0">
+                      <stop offset="0" stopColor="#FFD600"/>
+                      <stop offset="0.4" stopColor="#FF7A00"/>
+                      <stop offset="0.7" stopColor="#FF0069"/>
+                      <stop offset="1" stopColor="#8C00FF"/>
+                    </linearGradient>
+                  </defs>
+                  <rect x="2" y="2" width="20" height="20" rx="5" fill="url(#iggrad)"/>
+                  <circle cx="12" cy="12" r="4.5" fill="none" stroke="#fff" strokeWidth="1.8"/>
+                  <circle cx="17.2" cy="6.8" r="1.2" fill="#fff"/>
+                </svg>
+                Instagram
+              </button>
             </div>
-          )}
+          </div>
+
+          <div className="divlbl"><span>or sign in with email</span></div>
+
+          <div className="login-form">
+            <label className="fld">
+              <span>Email</span>
+              <input type="email" placeholder="name@firm.co.th" value={email} onChange={e => setEmail(e.target.value)}/>
+            </label>
+            <label className="fld">
+              <span>Password</span>
+              <input type="password" placeholder="••••••••" value={pwd} onChange={e => setPwd(e.target.value)} onKeyDown={e => { if (e.key === "Enter") submit(); }}/>
+            </label>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <label style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 12, color: "var(--ink-3)", cursor: "pointer" }}>
+                <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)}/> Keep me signed in
+              </label>
+              <a href="#" style={{ fontSize: 12, color: "var(--accent-deep)" }}>Forgot password?</a>
+            </div>
+            {err && <div className="login-err">{err}</div>}
+            <button className="btn primary" onClick={submit} disabled={busy} style={{ justifyContent: "center", padding: "11px 14px" }}>
+              {busy ? "Signing you in…" : `Sign in as ${role.charAt(0).toUpperCase() + role.slice(1)}`}
+            </button>
+            <div style={{ fontSize: 12, color: "var(--ink-3)", textAlign: "center" }}>
+              New here? <a href="#" style={{ color: "var(--accent-deep)", fontWeight: 600 }}>Request access</a>
+            </div>
+          </div>
+
+          <div className="login-legal">
+            By continuing you agree to our Terms &amp; PDPA-aligned Privacy Notice. We never share data without your consent.
+          </div>
         </div>
       </div>
     </div>

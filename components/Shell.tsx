@@ -5,7 +5,7 @@ import { DATA } from "@/lib/data";
 import { Icon, Avatar } from "@/components/ui";
 import { AIPanel } from "@/components/AIPanel";
 
-type NavItem = { id: string; label: string; icon: "dashboard"|"users"|"user"|"chart"|"target"|"shield"|"sparkles"|"doc"|"lock"|"gear"|"arrowRight"|"play"|"flag"|"send"; badge?: string };
+type NavItem = { id: string; label: string; icon: "dashboard"|"users"|"user"|"chart"|"target"|"shield"|"sparkles"|"doc"|"lock"|"gear"|"arrowRight"|"play"|"flag"|"send"|"filter"|"briefcase"|"info"; badge?: string };
 
 const NAV_ADVISOR: NavItem[] = [
   { id: "Dashboard", label: "Dashboard", icon: "dashboard" },
@@ -14,30 +14,31 @@ const NAV_ADVISOR: NavItem[] = [
   { id: "Portfolio", label: "Portfolio analytics", icon: "chart" },
   { id: "Goals", label: "Financial goals", icon: "target" },
   { id: "Risk", label: "Risk profile", icon: "shield" },
+  { id: "Projection", label: "Projection simulator", icon: "play" },
+  { id: "MonteCarlo", label: "Monte Carlo", icon: "sparkles" },
+  { id: "Scenarios", label: "Scenarios", icon: "filter" },
   { id: "Recommendations", label: "Recommendations", icon: "sparkles", badge: "3" },
   { id: "Reports", label: "Reports", icon: "doc" },
   { id: "Compliance", label: "Compliance log", icon: "lock" },
-  { id: "Settings", label: "Admin settings", icon: "gear" },
 ];
 
 const NAV_CLIENT: NavItem[] = [
-  { id: "ClientHome", label: "Dashboard", icon: "dashboard" },
-  { id: "Portfolio", label: "Portfolio", icon: "chart" },
-  { id: "RiskAnalysis", label: "Risk Analysis", icon: "shield" },
-  { id: "Projection", label: "Projections", icon: "arrowRight" },
-  { id: "MonteCarlo", label: "Monte Carlo", icon: "play" },
-  { id: "Scenario", label: "Scenario Analysis", icon: "flag" },
-  { id: "Goals", label: "My Goals", icon: "target" },
-  { id: "Snapshot", label: "Share Snapshot", icon: "send" },
+  { id: "ClientHome", label: "My portfolio", icon: "dashboard" },
+  { id: "Portfolio", label: "Holdings", icon: "chart" },
+  { id: "RiskAnalysis", label: "Risk analysis", icon: "shield" },
+  { id: "Projection", label: "Projection simulator", icon: "play" },
+  { id: "MonteCarlo", label: "Monte Carlo", icon: "sparkles" },
+  { id: "Scenario", label: "Scenarios", icon: "filter" },
+  { id: "Goals", label: "My goals", icon: "target" },
+  { id: "Risk", label: "My risk profile", icon: "info" },
+  { id: "Snapshot", label: "Share snapshot", icon: "send" },
   { id: "Reports", label: "Documents", icon: "doc" },
 ];
 
 const NAV_ADMIN: NavItem[] = [
-  { id: "AdminHome", label: "Overview", icon: "dashboard" },
-  { id: "AdminUsers", label: "Users & Roles", icon: "users" },
-  { id: "AdminAudit", label: "Audit Log", icon: "lock" },
-  { id: "AdminAnalytics", label: "Analytics", icon: "chart" },
-  { id: "AdminSettings", label: "System Settings", icon: "gear" },
+  { id: "Admin", label: "Admin console", icon: "gear" },
+  { id: "Compliance", label: "Compliance log", icon: "lock" },
+  { id: "Reports", label: "Reports", icon: "doc" },
 ];
 
 export type RouteId = typeof NAV_ADVISOR[number]["id"] | typeof NAV_CLIENT[number]["id"] | typeof NAV_ADMIN[number]["id"];
@@ -58,7 +59,7 @@ export function Shell({ children, initialView }: ShellProps) {
 
   useEffect(() => {
     const validRoutes = (view === "advisor" ? NAV_ADVISOR : view === "admin" ? NAV_ADMIN : NAV_CLIENT).map(x => x.id);
-    if (!validRoutes.includes(route)) setRoute(view === "advisor" ? "Dashboard" : view === "admin" ? "AdminHome" : "ClientHome");
+    if (!validRoutes.includes(route)) setRoute(view === "advisor" ? "Dashboard" : view === "admin" ? "Admin" : "ClientHome");
   }, [view]);
 
   useEffect(() => {
@@ -83,7 +84,7 @@ export function Shell({ children, initialView }: ShellProps) {
             </div>
           </div>
           <div className="nav-section">
-            <div className="nav-label">{view === "advisor" ? "Advisor workspace" : view === "admin" ? "Administration" : "Investor portal"}</div>
+            <div className="nav-label">{view === "advisor" ? "Advisor workspace" : view === "admin" ? "Admin" : "Investor portal"}</div>
             {items.map(it => (
               <div key={it.id} className={`nav-item ${route === it.id ? "active" : ""}`} onClick={() => setRoute(it.id as RouteId)}>
                 <Icon name={it.icon} size={15}/>
@@ -171,7 +172,7 @@ export function Shell({ children, initialView }: ShellProps) {
           <Icon name="sparkles" size={20}/>
         </button>
       )}
-      <AIPanel open={aiOpen} onClose={() => setAiOpen(false)} persona={persona} route={route}/>
+      <AIPanel open={aiOpen} onClose={() => setAiOpen(false)} persona={persona} route={route} view={view}/>
     </>
   );
 }

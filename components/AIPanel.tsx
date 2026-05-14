@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import type { PersonaKey } from "@/lib/types";
+import type { PersonaKey, View } from "@/lib/types";
 import type { RouteId } from "@/components/Shell";
 import { DATA } from "@/lib/data";
 import { Icon } from "@/components/ui";
@@ -16,20 +16,49 @@ interface AIPanelProps {
   onClose: () => void;
   persona: PersonaKey;
   route: string;
+  view?: View;
 }
 
-export function AIPanel({ open, onClose, persona, route }: AIPanelProps) {
+const SUGGESTIONS: Record<View, string[]> = {
+  advisor: [
+    "Explain this portfolio's performance",
+    "Generate talking points for today's review",
+    "What concentration risks should I flag?",
+    "Draft client review notes",
+    "Suggest 3 questions to ask the client today",
+  ],
+  client: [
+    "Explain my portfolio performance simply",
+    "What is my biggest risk right now?",
+    "Am I on track for my retirement goal?",
+    "What's the difference between volatility and drawdown?",
+    "How would a 20% market drop affect me?",
+  ],
+  admin: [
+    "Summarize this week's compliance alerts",
+    "Which advisors are overloaded?",
+    "Are we ready for the next SEC filing?",
+    "Show me firm-wide concentration risk",
+  ],
+};
+
+export function AIPanel({ open, onClose, persona, route, view = "advisor" }: AIPanelProps) {
   const P = DATA.PERSONAS[persona];
-  const [msgs, setMsgs] = useState<Message[]>([
-    { role: "bot", text: `I'm watching ${P.shortName}'s portfolio. Ask me anything, or pick a suggestion below.`, src: "Trained on portfolio data · live since 09:00" },
-  ]);
+
+  const initialMsg = (): Message => {
+    if (view === "client") return { role: "bot", text: "Hi — I'm your portfolio AI. I can explain what's happening with your investments in plain language.", src: "Trained on your portfolio" };
+    if (view === "admin") return { role: "bot", text: "I'm watching firm-wide activity. Ask anything about compliance, advisors, or audit events.", src: "Firm-wide context · live" };
+    return { role: "bot", text: `I'm watching ${P.shortName}'s portfolio. Ask anything, or pick a suggestion below.`, src: "Trained on portfolio data · live since 09:00" };
+  };
+
+  const [msgs, setMsgs] = useState<Message[]>([initialMsg()]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setMsgs([{ role: "bot", text: `I'm watching ${P.shortName}'s portfolio. Ask me anything, or pick a suggestion below.`, src: "Trained on portfolio data · live since 09:00" }]);
-  }, [persona]);
+    setMsgs([initialMsg()]);
+  }, [persona, view]);
 
   useEffect(() => {
     if (bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
@@ -47,20 +76,22 @@ export function AIPanel({ open, onClose, persona, route }: AIPanelProps) {
         body: JSON.stringify({ message: text, persona }),
       });
       const data = await res.json();
-      setMsgs(m => [...m, { role: "bot", text: data.reply, src: "Generated · review before sharing with client" }]);
+      const src = view === "client"
+        ? "AI-generated · not personalised investment advice"
+        : view === "admin"
+        ? "Generated · firm-admin context"
+        : "Generated · review before sharing with client";
+      setMsgs(m => [...m, { role: "bot", text: data.reply, src }]);
     } catch {
       setMsgs(m => [...m, { role: "bot", text: "I couldn't reach the model just now. Try again in a moment.", src: "" }]);
     }
     setBusy(false);
   };
 
-  const suggestions = [
-    "Explain this portfolio's performance",
-    "Generate talking points for today's meeting",
-    "What concentration risks should I flag?",
-    "Draft client review notes",
-    "Suggest 3 questions to ask the client",
-  ];
+  const suggestions = SUGGESTIONS[view];
+  const roleLabel = view === "client" ? "Client" : view === "admin" ? "Admin" : "Advisor";
+  const watchingLabel = view === "admin" ? "Watching firm-wide" : `Watching ${P.shortName}`;
+  const placeholder = view === "client" ? "Ask anything about your portfolio..." : "Ask about this portfolio...";
 
   if (!open) return null;
   return (
@@ -70,9 +101,9 @@ export function AIPanel({ open, onClose, persona, route }: AIPanelProps) {
           <Icon name="sparkles" size={14}/>
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 700, fontSize: 13 }}>NaNote AI · Advisor</div>
+          <div style={{ fontWeight: 700, fontSize: 13 }}>NaNote AI · {roleLabel}</div>
           <div style={{ fontSize: 11, color: "var(--ink-3)", display: "flex", alignItems: "center", gap: 6 }}>
-            <span className="dot"/> Watching {P.shortName} · {route}
+            <span className="dot"/> {watchingLabel} · {route}
           </div>
         </div>
         <button className="iconbtn" onClick={onClose} style={{ border: 0, width: 28, height: 28 }}>
@@ -106,7 +137,7 @@ export function AIPanel({ open, onClose, persona, route }: AIPanelProps) {
       </div>
       <div className="ai-input">
         <input
-          placeholder="Ask about this client's portfolio..."
+          placeholder={placeholder}
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter") send(input); }}
