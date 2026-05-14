@@ -1,8 +1,6 @@
-"use client";
-import { useState } from "react";
-import type { View } from "@/lib/types";
+import { getRole } from "@/lib/auth";
+import { ScreenPending } from "@/components/screens/ScreenPending";
 import { Shell } from "@/components/Shell";
-import { ScreenLogin } from "@/components/screens/ScreenLogin";
 import { ScreenAdvisorDashboard } from "@/components/screens/ScreenAdvisorDashboard";
 import { ScreenClientList } from "@/components/screens/ScreenClientList";
 import { ScreenClientProfile } from "@/components/screens/ScreenClientProfile";
@@ -20,20 +18,12 @@ import { ScreenClientMonteCarlo } from "@/components/screens/ScreenClientMonteCa
 import { ScreenClientScenario } from "@/components/screens/ScreenClientScenario";
 import { ScreenClientSnapshot } from "@/components/screens/ScreenClientSnapshot";
 
-export default function Page() {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [initialView, setInitialView] = useState<View>("advisor");
+export default async function Page() {
+  const role = await getRole();
 
-  if (!loggedIn) {
-    return (
-      <ScreenLogin
-        onLogin={(role) => {
-          setInitialView(role);
-          setLoggedIn(true);
-        }}
-      />
-    );
-  }
+  if (role === "pending") return <ScreenPending />;
+
+  const initialView = role === "client" ? "client" : role === "admin" ? "advisor" : "advisor";
 
   return (
     <Shell initialView={initialView}>
@@ -62,7 +52,7 @@ export default function Page() {
           }
         }
 
-        // Advisor view
+        // Advisor view (also used by admin role)
         switch (route) {
           case "Dashboard":       return <ScreenAdvisorDashboard ccy={ccy} onOpenClient={() => onNav("Profile")} />;
           case "Clients":         return <ScreenClientList ccy={ccy} onOpenClient={() => onNav("Profile")} />;

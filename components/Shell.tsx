@@ -114,6 +114,16 @@ export function Shell({ children, initialView }: ShellProps) {
               </div>
             </div>
             <Icon name="gear" size={14}/>
+            {initialView === "admin" && (
+              <div
+                className="nav-item"
+                style={{ opacity: view === "admin" ? 1 : 0.45, cursor: "pointer", padding: "4px 6px" }}
+                onClick={() => { setView("admin"); setRoute("Admin" as RouteId); }}
+                title="Admin console"
+              >
+                <Icon name="gear" size={14}/>
+              </div>
+            )}
           </div>
         </aside>
 
@@ -129,11 +139,6 @@ export function Shell({ children, initialView }: ShellProps) {
               <Icon name="search" size={14}/>
               <input placeholder={view === "advisor" ? "Search clients, holdings..." : "Search holdings..."}/>
               <kbd style={{ fontFamily: "var(--mono)", fontSize: 10, background: "var(--surface)", padding: "2px 5px", borderRadius: 4, border: "1px solid var(--border)", color: "var(--ink-4)" }}>⌘K</kbd>
-            </div>
-            <div className="viewtoggle">
-              <button className={view === "advisor" ? "on" : ""} onClick={() => setView("advisor")}>Advisor</button>
-              <button className={view === "client" ? "on" : ""} onClick={() => setView("client")}>Client</button>
-              <button className={view === "admin" ? "on" : ""} onClick={() => setView("admin")}>Admin</button>
             </div>
             {view === "advisor" && (
               <select value={persona} onChange={e => setPersona(e.target.value as PersonaKey)} className="btn sm" style={{ paddingRight: 10, cursor: "pointer" }}>

@@ -1,36 +1,22 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Icon } from "@/components/ui";
 
-type Role = "advisor" | "client" | "admin";
-
-const ROLE_COPY: Record<Role, { title: string; sub: string; icon: "briefcase" | "user" | "gear" }> = {
-  advisor: { title: "Advisor workspace", sub: "Full client book · recommendations · compliance", icon: "briefcase" },
-  client:  { title: "Investor portal",   sub: "My portfolio · my goals · snapshots",           icon: "user"     },
-  admin:   { title: "Admin console",     sub: "Firm settings · users · audit · licensing",      icon: "gear"     },
-};
-
-export function ScreenLogin({ onLogin }: { onLogin: (role: Role) => void }) {
-  const [role, setRole] = useState<Role>("advisor");
+export function ScreenLogin() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [pwd, setPwd] = useState("");
-  const [remember, setRemember] = useState(true);
   const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState("");
 
-  const social = (_provider: string) => {
+  const go = (url: string) => {
     setBusy(true);
-    setTimeout(() => { setBusy(false); onLogin(role); }, 700);
+    router.push(url);
   };
 
   const submit = () => {
-    if (!email || !pwd) { setErr("Email and password are required."); return; }
-    setErr("");
-    setBusy(true);
-    setTimeout(() => { setBusy(false); onLogin(role); }, 500);
+    if (!email) return;
+    go("/auth/login?login_hint=" + encodeURIComponent(email));
   };
-
-  const rc = ROLE_COPY[role];
 
   return (
     <div className="login-wrap">
@@ -65,23 +51,14 @@ export function ScreenLogin({ onLogin }: { onLogin: (role: Role) => void }) {
 
         {/* Right card */}
         <div className="login-card fadein">
-          {/* Role tabs */}
-          <div className="login-role-tabs">
-            {(["advisor", "client", "admin"] as Role[]).map(r => (
-              <button key={r} className={role === r ? "on" : ""} onClick={() => setRole(r)}>
-                <Icon name={ROLE_COPY[r].icon} size={14}/>
-                <span>{r === "advisor" ? "Advisor" : r === "client" ? "Client" : "Admin"}</span>
-              </button>
-            ))}
-          </div>
-          <div className="login-role-blurb">
-            <div style={{ fontSize: 13, fontWeight: 700 }}>{rc.title}</div>
-            <div style={{ fontSize: 12, color: "var(--ink-3)" }}>{rc.sub}</div>
+          <div style={{ marginBottom: 8 }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "var(--ink)" }}>Welcome back</div>
+            <div style={{ fontSize: 13, color: "var(--ink-3)", marginTop: 4 }}>Sign in to access your workspace</div>
           </div>
 
           {/* Social auth */}
           <div className="login-socials">
-            <button className="soc google" onClick={() => social("google")} disabled={busy}>
+            <button className="soc google" onClick={() => go("/auth/login?connection=google-oauth2")} disabled={busy}>
               <svg width="16" height="16" viewBox="0 0 48 48">
                 <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8a12 12 0 1 1 0-24c3 0 5.8 1.1 7.9 3l5.7-5.7C33.9 6 29.2 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.3-.4-3.5z"/>
                 <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 18.9 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C33.9 6.6 29.2 4.5 24 4.5 16.4 4.5 9.8 8.8 6.3 14.7z"/>
@@ -91,13 +68,13 @@ export function ScreenLogin({ onLogin }: { onLogin: (role: Role) => void }) {
               Continue with Google
             </button>
             <div className="soc-row">
-              <button className="soc fb" onClick={() => social("facebook")} disabled={busy} title="Facebook">
+              <button className="soc fb" onClick={() => go("/auth/login?connection=facebook")} disabled={busy} title="Facebook">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2">
                   <path d="M22 12a10 10 0 1 0-11.6 9.9v-7H8v-2.9h2.4V9.8c0-2.4 1.4-3.7 3.6-3.7 1 0 2.1.2 2.1.2v2.3h-1.2c-1.2 0-1.5.7-1.5 1.5v1.8h2.6l-.4 2.9h-2.2v7A10 10 0 0 0 22 12z"/>
                 </svg>
                 Facebook
               </button>
-              <button className="soc ig" onClick={() => social("instagram")} disabled={busy} title="Instagram">
+              <button className="soc ig" onClick={() => go("/auth/login?connection=instagram")} disabled={busy} title="Instagram">
                 <svg width="16" height="16" viewBox="0 0 24 24">
                   <defs>
                     <linearGradient id="iggrad" x1="0" y1="1" x2="1" y2="0">
@@ -121,24 +98,13 @@ export function ScreenLogin({ onLogin }: { onLogin: (role: Role) => void }) {
           <div className="login-form">
             <label className="fld">
               <span>Email</span>
-              <input type="email" placeholder="name@firm.co.th" value={email} onChange={e => setEmail(e.target.value)}/>
+              <input type="email" placeholder="name@firm.co.th" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => { if (e.key === "Enter") submit(); }}/>
             </label>
-            <label className="fld">
-              <span>Password</span>
-              <input type="password" placeholder="••••••••" value={pwd} onChange={e => setPwd(e.target.value)} onKeyDown={e => { if (e.key === "Enter") submit(); }}/>
-            </label>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <label style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 12, color: "var(--ink-3)", cursor: "pointer" }}>
-                <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)}/> Keep me signed in
-              </label>
-              <a href="#" style={{ fontSize: 12, color: "var(--accent-deep)" }}>Forgot password?</a>
-            </div>
-            {err && <div className="login-err">{err}</div>}
-            <button className="btn primary" onClick={submit} disabled={busy} style={{ justifyContent: "center", padding: "11px 14px" }}>
-              {busy ? "Signing you in…" : `Sign in as ${role.charAt(0).toUpperCase() + role.slice(1)}`}
+            <button className="btn primary" onClick={submit} disabled={busy || !email} style={{ justifyContent: "center", padding: "11px 14px" }}>
+              {busy ? "Redirecting…" : "Continue with email"}
             </button>
             <div style={{ fontSize: 12, color: "var(--ink-3)", textAlign: "center" }}>
-              New here? <a href="#" style={{ color: "var(--accent-deep)", fontWeight: 600 }}>Request access</a>
+              New here? <a href="/auth/login" style={{ color: "var(--accent-deep)", fontWeight: 600 }}>Request access</a>
             </div>
           </div>
 
