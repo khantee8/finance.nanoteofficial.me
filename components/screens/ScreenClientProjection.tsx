@@ -55,7 +55,7 @@ function SliderInput({
   );
 }
 
-export function ScreenClientProjection({ ccy, persona }: { ccy: Currency; persona: PersonaKey }) {
+export function ScreenClientProjection({ persona }: { ccy: Currency; persona: PersonaKey }) {
   const P = DATA.PERSONAS[persona];
 
   const [initialAmount, setInitialAmount] = useState(P.portfolioValue);
@@ -65,13 +65,15 @@ export function ScreenClientProjection({ ccy, persona }: { ccy: Currency; person
   const [inflation, setInflation] = useState(2.5);
   const [goalAmount, setGoalAmount] = useState(Math.round(P.portfolioValue * 2.5));
 
-  // Reset defaults when persona changes
-  useEffect(() => {
+  // Reset defaults when persona changes (render-time adjustment; horizon/inflation persist)
+  const [prevPersona, setPrevPersona] = useState(persona);
+  if (prevPersona !== persona) {
+    setPrevPersona(persona);
     setInitialAmount(P.portfolioValue);
     setMonthly(Math.max(0, Math.round((P.income - P.expenses) / 12)));
     setAnnualReturn(parseFloat(P.ytdReturn.toFixed(1)));
     setGoalAmount(Math.round(P.portfolioValue * 2.5));
-  }, [persona, P]);
+  }
 
   const projection = useMemo(() => {
     const r = annualReturn / 100;

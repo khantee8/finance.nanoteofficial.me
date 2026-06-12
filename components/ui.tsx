@@ -285,11 +285,15 @@ export function Donut({
   const r = size / 2 - 2;
   const inner = r - thickness;
   const cx = size / 2, cy = size / 2;
-  let a = -Math.PI / 2;
+  const angles: { start: number; end: number }[] = [];
+  for (let i = 0, acc = -Math.PI / 2; i < data.length; i++) {
+    const end = acc + (data[i].weight / total) * Math.PI * 2;
+    angles.push({ start: acc, end });
+    acc = end;
+  }
   const slices = data.map((d, i) => {
-    const ang = (d.weight / total) * Math.PI * 2;
-    const a2 = a + ang;
-    const large = ang > Math.PI ? 1 : 0;
+    const { start: a, end: a2 } = angles[i];
+    const large = a2 - a > Math.PI ? 1 : 0;
     const x1 = cx + r * Math.cos(a), y1 = cy + r * Math.sin(a);
     const x2 = cx + r * Math.cos(a2), y2 = cy + r * Math.sin(a2);
     const x3 = cx + inner * Math.cos(a2), y3 = cy + inner * Math.sin(a2);
@@ -297,7 +301,6 @@ export function Donut({
     const path = `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} L ${x3} ${y3} A ${inner} ${inner} 0 ${large} 0 ${x4} ${y4} Z`;
     const pct = ((d.weight / total) * 100).toFixed(1);
     const idx = i;
-    a = a2;
     return (
       <path
         key={i}

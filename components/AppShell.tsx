@@ -24,8 +24,8 @@ export function AppShell({ initialView }: { initialView: View }) {
       {({ route, view, persona, ccy, onNav }) => {
         if (view === "admin") {
           switch (route) {
-            case "Compliance":  return <ScreenCompliance ccy={ccy} />;
-            case "Reports":     return <ScreenReports ccy={ccy} />;
+            case "Compliance":  return <ScreenCompliance />;
+            case "Reports":     return <ScreenReports />;
             default:            return <ScreenAdminDashboard />;
           }
         }
@@ -41,7 +41,7 @@ export function AppShell({ initialView }: { initialView: View }) {
             case "Goals":        return <ScreenGoals ccy={ccy} persona={persona} />;
             case "Risk":         return <ScreenRiskProfile ccy={ccy} persona={persona} />;
             case "Snapshot":     return <ScreenClientSnapshot ccy={ccy} persona={persona} />;
-            case "Reports":      return <ScreenReports ccy={ccy} />;
+            case "Reports":      return <ScreenReports />;
             default:             return <ScreenClientView ccy={ccy} persona={persona} />;
           }
         }
@@ -57,8 +57,8 @@ export function AppShell({ initialView }: { initialView: View }) {
           case "MonteCarlo":      return <ScreenClientMonteCarlo ccy={ccy} persona={persona} />;
           case "Scenarios":       return <ScreenClientScenario ccy={ccy} persona={persona} />;
           case "Recommendations": return <ScreenRecommend ccy={ccy} persona={persona} />;
-          case "Reports":         return <ScreenReports ccy={ccy} />;
-          case "Compliance":      return <ScreenCompliance ccy={ccy} />;
+          case "Reports":         return <ScreenReports />;
+          case "Compliance":      return <ScreenCompliance />;
           default:                return <ScreenAdvisorDashboard ccy={ccy} onOpenClient={() => onNav("Profile")} />;
         }
       }}

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import type { Currency, PersonaKey } from "@/lib/types";
 import { DATA } from "@/lib/data";
-import { Icon, Money, Delta, Avatar, Sparkline, AreaPerf, ProgressRing, HBar, Tabs } from "@/components/ui";
+import { Icon, Money, Delta, Avatar, AreaPerf, ProgressRing, Tabs } from "@/components/ui";
 
 export function ScreenClientProfile({ ccy, persona, onNav }: { ccy: Currency; persona: PersonaKey; onNav: (r: string) => void }) {
   const D = DATA;

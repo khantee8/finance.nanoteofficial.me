@@ -3,17 +3,6 @@ import { useState } from "react";
 import { DATA } from "@/lib/data";
 import { Icon, Avatar, Badge, Delta, Tabs } from "@/components/ui";
 
-const ACTIVITY = [
-  { ts: "09:41", actor: "pakorn.v@nanote.th", action: "Logged in", target: "System", severity: "info" as const },
-  { ts: "09:38", actor: "admin@nanote.th", action: "Role assigned: Advisor", target: "User: chaiya.s", severity: "info" as const },
-  { ts: "09:22", actor: "pakorn.v@nanote.th", action: "Client created", target: "Nattaya T.", severity: "info" as const },
-  { ts: "09:15", actor: "system", action: "Compliance flag raised", target: "Portfolio: BLC-204", severity: "warn" as const },
-  { ts: "08:57", actor: "somchai.k@nanote.th", action: "Report exported", target: "Q1 2026 Review — Anucha", severity: "info" as const },
-  { ts: "08:44", actor: "system", action: "Backup completed", target: "DB snapshot v2026-05-12", severity: "info" as const },
-  { ts: "08:31", actor: "admin@nanote.th", action: "User deactivated", target: "User: wanchai.b", severity: "warn" as const },
-  { ts: "08:10", actor: "system", action: "Daily sync", target: "Market data · SET, BKK", severity: "info" as const },
-];
-
 const USERS = [
   { name: "Pakorn Vichaichotikul", initials: "PV", role: "Senior Advisor", clients: 28, status: "Active", last: "2m ago" },
   { name: "Naphat Charoenrat", initials: "NC", role: "Senior Advisor", clients: 22, status: "Active", last: "11m ago" },
@@ -22,10 +11,6 @@ const USERS = [
   { name: "Wattana Sae-Lim", initials: "WS", role: "Operations", clients: 0, status: "Active", last: "30m ago" },
   { name: "Pen Charoenchai", initials: "PC", role: "Advisor", clients: 9, status: "On leave", last: "3d ago" },
 ];
-
-function fmt(n: number) {
-  return "฿" + (n >= 1e9 ? (n/1e9).toFixed(1)+"B" : n >= 1e6 ? (n/1e6).toFixed(1)+"M" : n.toLocaleString());
-}
 
 function AdminOverview() {
   return (

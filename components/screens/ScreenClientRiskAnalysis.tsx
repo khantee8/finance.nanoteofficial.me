@@ -2,7 +2,7 @@
 import { useState, useMemo } from "react";
 import type { PersonaKey, Currency } from "@/lib/types";
 import { DATA } from "@/lib/data";
-import { Icon, ProgressRing, HBar, Tabs, Badge, Delta, Money } from "@/components/ui";
+import { Icon, ProgressRing, HBar, Tabs, Badge, Money } from "@/components/ui";
 
 const CURRENCY_EXPOSURE: Record<PersonaKey, { label: string; value: number; color: string }[]> = {
   conservative: [

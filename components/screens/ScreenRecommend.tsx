@@ -2,7 +2,7 @@
 import { useState } from "react";
 import type { Currency, PersonaKey } from "@/lib/types";
 import { DATA } from "@/lib/data";
-import { Icon, Money, Delta } from "@/components/ui";
+import { Icon, Money } from "@/components/ui";
 
 export function ScreenRecommend({ ccy, persona }: { ccy: Currency; persona: PersonaKey }) {
   const D = DATA;
@@ -13,7 +13,7 @@ export function ScreenRecommend({ ccy, persona }: { ccy: Currency; persona: Pers
 
   const toggle = (i: number) => setConfirmed(prev => {
     const next = new Set(prev);
-    next.has(i) ? next.delete(i) : next.add(i);
+    if (next.has(i)) next.delete(i); else next.add(i);
     return next;
   });
 

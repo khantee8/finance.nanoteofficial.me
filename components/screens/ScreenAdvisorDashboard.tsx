@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import type { Currency, Client } from "@/lib/types";
 import { DATA } from "@/lib/data";
 import { Icon, Money, Delta, Avatar, Sparkline, AreaPerf, Seg } from "@/components/ui";

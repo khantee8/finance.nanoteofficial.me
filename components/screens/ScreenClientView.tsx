@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import type { Currency, PersonaKey } from "@/lib/types";
 import { DATA } from "@/lib/data";
 import { Icon, Money, Delta, Donut, AreaPerf, ProgressRing } from "@/components/ui";

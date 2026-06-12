@@ -1,8 +1,8 @@
 "use client";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import type { Currency, PersonaKey } from "@/lib/types";
 import { DATA } from "@/lib/data";
-import { Icon, Money, ProgressRing, AreaPerf } from "@/components/ui";
+import { Icon, Money, AreaPerf } from "@/components/ui";
 
 export function ScreenGoals({ ccy, persona }: { ccy: Currency; persona: PersonaKey }) {
   const D = DATA;
@@ -18,10 +18,12 @@ export function ScreenGoals({ ccy, persona }: { ccy: Currency; persona: PersonaK
   const [growth, setGrowth] = useState(persona === "aggressive" ? 9 : persona === "conservative" ? 4 : 6.5);
   const [inflation, setInflation] = useState(2.5);
 
-  useEffect(() => {
-    setTarget(goal.target); setCurrent(goal.current); setMonthly(goal.monthly);
-    setYears(goal.targetYear - 2026);
-  }, [activeId]);
+  const selectGoal = (id: string) => {
+    setActiveId(id);
+    const g = goals.find(x => x.id === id) ?? goals[0];
+    setTarget(g.target); setCurrent(g.current); setMonthly(g.monthly);
+    setYears(g.targetYear - 2026);
+  };
 
   const projection = useMemo(() => {
     const months = Math.max(1, years * 12);
@@ -57,7 +59,7 @@ export function ScreenGoals({ ccy, persona }: { ccy: Currency; persona: PersonaK
           {goals.map(g => {
             const pct = Math.min(100, (g.current / g.target) * 100);
             return (
-              <div key={g.id} onClick={() => setActiveId(g.id)}
+              <div key={g.id} onClick={() => selectGoal(g.id)}
                 style={{ padding: "16px 18px", borderBottom: "1px solid var(--border)", cursor: "pointer",
                   background: activeId === g.id ? "var(--accent-soft)" : "transparent" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

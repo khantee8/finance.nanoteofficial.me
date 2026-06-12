@@ -4,7 +4,7 @@ import type { Currency, PersonaKey } from "@/lib/types";
 import { DATA } from "@/lib/data";
 import { Icon, ProgressRing } from "@/components/ui";
 
-export function ScreenRiskProfile({ ccy, persona }: { ccy: Currency; persona: PersonaKey }) {
+export function ScreenRiskProfile({ persona }: { ccy: Currency; persona: PersonaKey }) {
   const D = DATA;
   const P = D.PERSONAS[persona];
   const [answers, setAnswers] = useState<Record<number, number>>({});

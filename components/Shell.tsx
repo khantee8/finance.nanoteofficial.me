@@ -50,18 +50,15 @@ interface ShellProps {
 
 export function Shell({ children, initialView }: ShellProps) {
   // Admin users start in advisor view; the footer gear link switches them to admin console
-  const [view, setView] = useState<View>(initialView === "admin" ? "advisor" : (initialView ?? "advisor"));
-  const [route, setRoute] = useState<RouteId>("Dashboard");
+  const startView: View = initialView === "admin" ? "advisor" : (initialView ?? "advisor");
+  const [view, setView] = useState<View>(startView);
+  // Every setView call must pair with a setRoute to a route valid in the new view
+  const [route, setRoute] = useState<RouteId>(startView === "client" ? "ClientHome" : "Dashboard");
   const [ccy, setCcy] = useState<Currency>("THB");
   const [persona, setPersona] = useState<PersonaKey>("balanced");
   const [dark, setDark] = useState(false);
-  const [density, setDensity] = useState<Density>("comfortable");
+  const [density] = useState<Density>("comfortable");
   const [aiOpen, setAiOpen] = useState(false);
-
-  useEffect(() => {
-    const validRoutes = (view === "advisor" ? NAV_ADVISOR : view === "admin" ? NAV_ADMIN : NAV_CLIENT).map(x => x.id);
-    if (!validRoutes.includes(route)) setRoute(view === "advisor" ? "Dashboard" : view === "admin" ? "Admin" : "ClientHome");
-  }, [view]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
@@ -178,7 +175,8 @@ export function Shell({ children, initialView }: ShellProps) {
           <Icon name="sparkles" size={20}/>
         </button>
       )}
-      <AIPanel open={aiOpen} onClose={() => setAiOpen(false)} persona={persona} route={route} view={view}/>
+      {/* key remounts the panel so its conversation resets when persona/view changes */}
+      <AIPanel key={`${persona}-${view}`} open={aiOpen} onClose={() => setAiOpen(false)} persona={persona} route={route} view={view}/>
     </>
   );
 }

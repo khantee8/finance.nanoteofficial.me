@@ -1,10 +1,9 @@
 "use client";
 import { useState } from "react";
-import type { Currency } from "@/lib/types";
 import { DATA } from "@/lib/data";
 import { Icon, FilterPill } from "@/components/ui";
 
-export function ScreenCompliance({ ccy }: { ccy: Currency }) {
+export function ScreenCompliance() {
   const D = DATA;
   const [cat, setCat] = useState("All");
   const [sev, setSev] = useState("All");

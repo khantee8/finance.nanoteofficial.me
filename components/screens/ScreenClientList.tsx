@@ -13,7 +13,7 @@ export function ScreenClientList({ ccy, onOpenClient }: { ccy: Currency; onOpenC
   const [sortDir, setSortDir] = useState<"asc"|"desc">("desc");
 
   const rows = useMemo(() => {
-    let r = D.CLIENTS.filter(c =>
+    const r = D.CLIENTS.filter(c =>
       (seg === "All" || c.segment === seg) &&
       (cat === "All" || c.category === cat) &&
       (!q || c.name.toLowerCase().includes(q.toLowerCase()))
@@ -25,7 +25,7 @@ export function ScreenClientList({ ccy, onOpenClient }: { ccy: Currency; onOpenC
       return sortDir === "asc" ? cmp : -cmp;
     });
     return r;
-  }, [q, seg, cat, sortKey, sortDir]);
+  }, [D.CLIENTS, q, seg, cat, sortKey, sortDir]);
 
   const totalAUM = rows.reduce((s, r) => s + r.aum, 0);
   const sort = (k: keyof Client) => () => {

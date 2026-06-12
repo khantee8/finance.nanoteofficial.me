@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import type { PersonaKey, View } from "@/lib/types";
-import type { RouteId } from "@/components/Shell";
 import { DATA } from "@/lib/data";
 import { Icon } from "@/components/ui";
 
@@ -51,14 +50,11 @@ export function AIPanel({ open, onClose, persona, route, view = "advisor" }: AIP
     return { role: "bot", text: `I'm watching ${P.shortName}'s portfolio. Ask anything, or pick a suggestion below.`, src: "Trained on portfolio data · live since 09:00" };
   };
 
+  // Shell remounts this panel (via key) when persona/view changes, resetting the conversation
   const [msgs, setMsgs] = useState<Message[]>([initialMsg()]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setMsgs([initialMsg()]);
-  }, [persona, view]);
 
   useEffect(() => {
     if (bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
